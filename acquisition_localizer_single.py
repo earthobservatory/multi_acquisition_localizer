@@ -4,6 +4,7 @@ import os, sys, time, json, requests, logging
 from hysds_commons.job_utils import resolve_hysds_job
 from hysds.celery import app
 from hysds_commons.job_utils import submit_hysds_job
+import osaka.main
 
 # set logger
 log_format = "[%(asctime)s: %(levelname)s/%(name)s/%(funcName)s] %(message)s"
@@ -237,6 +238,7 @@ def resolve_s1_slc(identifier, download_url, asf_queue, esa_queue):
     # determine best url and corresponding queue
     vertex_url = "https://datapool.asf.alaska.edu/SLC/SA/{}.zip".format(identifier)
     r = requests.head(vertex_url, allow_redirects=True)
+    logger.info("Status Code from ASF : %s" %r.status_code)
     if r.status_code in (200, 403):
         url = r.url
         queue = asf_queue
@@ -324,18 +326,23 @@ def extract_job(spyddder_extract_version, queue, localize_url, file, prod_name,
 
     # resolve hysds job
     params = {
-        "localize_url": localize_url,
+        #"localize_url": localize_url,
         "file": file,
         "prod_name": prod_name,
         "prod_date": prod_date,
         "aoi": aoi,
     }
+
+    osaka.main.get(localize_url, file)
+     
     job = resolve_hysds_job(job_type, queue, priority=priority, params=params, 
                             job_name="%s-%s-%s" % (job_type, aoi, prod_name))
 
     # save to archive_filename if it doesn't match url basename
+    '''
     if os.path.basename(localize_url) != file:
         job['payload']['localize_urls'][0]['local_path'] = file
+    '''
 
     # add workflow info
     #if wuid is not None and job_num is not None:

@@ -323,7 +323,7 @@ def extract_job(spyddder_extract_version, queue, localize_url, file, prod_name,
 
     # set job type and disk space reqs
     job_type = "job-spyddder-extract:{}".format(spyddder_extract_version)
-    job_type = "job-spyddder-sling-extract:{}".format(spyddder_extract_version)"
+    job_type = "job-spyddder-sling-extract:{}".format(spyddder_extract_version)
 
     # resolve hysds job
     params = {

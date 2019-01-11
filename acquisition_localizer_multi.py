@@ -482,10 +482,11 @@ def check_all_job_completed(acq_info):
     for acq_id in acq_info.keys():
         if not acq_info[acq_id]['localized']:  
             job_status = acq_info[acq_id]['job_status']
-            if not job_status == "job-completed" or not job_status == "job-failed":
-                logger.info("check_all_job_completed : %s NOT completed!!" %acq_info[acq_id]['job_id'])	
-                all_done = False
-                break
+            if not job_status == "job-completed":
+                if not job_status == "job-failed":
+                    logger.info("check_all_job_completed : %s NOT completed!! present status : %s" %(acq_info[acq_id]['job_id'], acq_info[acq_id]['job_status']))	
+                    all_done = False
+                    break
     return all_done
 
 def check_failed_jobs(acq_info):

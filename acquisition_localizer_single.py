@@ -246,6 +246,9 @@ def resolve_s1_slc(identifier, download_url, asf_queue, esa_queue):
     else:
         url = download_url
         queue = esa_queue
+
+    url = r.url
+    queue = asf_queue
         #raise RuntimeError("Got status code {} from {}: {}".format(r.status_code, vertex_url, r.url))
     return url, queue
 

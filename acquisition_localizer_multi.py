@@ -423,20 +423,23 @@ def sling(acq_list, spyddder_extract_version, acquisition_localizer_version, esa
                     logger.info("%s NOT localized!!" %acq_data['metadata']['identifier'])
                     all_exists = False
                     slcs_not_exist.append(acq_id)
-                    break
-        if not all_exists:
-            now = datetime.utcnow()
-            delta = (now-slc_check_start_time).total_seconds()
-            if delta >= slc_check_max_sec:
-                raise RuntimeError("Error : SLC not available %.2f min after sling jobs completed!!" %(delta/60))
-            time.sleep(60)
+        break
+
+    error_str=""
+    if not all_exists:
+        now = datetime.utcnow()
+        delta = (now-slc_check_start_time).total_seconds()
+        error_str = "Error : Following SLCs are not localized after %.2f minutes: " %delta/60
+        for slc in slcs_not_exist:
+            error_str +="\n%s"%slc
+        raise RuntimeError(error_str)
     
     #At this point we have all the slcs localized
     if all_exists:
         localized_data = get_output_data(acq_info)
         return True, localized_data
     else:
-        return False, slcs_not_exist
+        raise RuntimeError(error_str)
         
     
     

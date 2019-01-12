@@ -341,10 +341,10 @@ def extract_job(spyddder_extract_version, queue, localize_url, file, prod_name,
                             job_name="%s-%s-%s" % (job_type, aoi, prod_name))
 
     # save to archive_filename if it doesn't match url basename
-    '''
+    
     if os.path.basename(localize_url) != file:
         job['payload']['localize_urls'][0]['local_path'] = file
-    '''
+    
 
     # add workflow info
     #if wuid is not None and job_num is not None:

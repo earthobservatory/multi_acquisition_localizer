@@ -61,7 +61,7 @@ def dataset_exists(id, index_suffix):
             print(err_str)
             print("query: %s" % json.dumps(query, indent=2))
             #r.raise_for_status()
-            raise RuntimeError(err_str)
+            raise Exception(err_str)
     return False if total == 0 else True
 
 
@@ -259,7 +259,7 @@ def resolve_s1_slc(identifier, download_url, asf_queue, esa_queue):
         queue = esa_queue
     #url = r.url
     #queue = asf_queue
-        #raise RuntimeError("Got status code {} from {}: {}".format(r.status_code, vertex_url, r.url))
+        #raise Exception("Got status code {} from {}: {}".format(r.status_code, vertex_url, r.url))
     return url, queue
 
 
@@ -299,7 +299,7 @@ def resolve_source(dataset_type, identifier, dataset, download_url, asf_ngap_dow
 
     # ensure acquisition
     if dataset_type != "acquisition":
-        raise RuntimeError("Invalid dataset type: {}".format(dataset_type))
+        raise Exception("Invalid dataset type: {}".format(dataset_type))
 
     # route resolver and return url and queue
     if dataset == "acquisition-S1-IW_SLC":
@@ -309,7 +309,7 @@ def resolve_source(dataset_type, identifier, dataset, download_url, asf_ngap_dow
         '''
         url, queue = resolve_s1_slc(identifier, download_url, asf_ngap_download_queue, esa_download_queue)
     else:
-        raise NotImplementedError("Unknown acquisition dataset: {}".format(dataset))
+        raise Exception("Unknown acquisition dataset: {}".format(dataset))
 
     return extract_job(spyddder_extract_version, queue, url, archive_filename, identifier, time.strftime('%Y-%m-%d' ), job_priority, aoi)
 
@@ -326,7 +326,7 @@ def extract_job(spyddder_extract_version, queue, localize_url, file, prod_name,
 
     '''
     if wuid is None or job_num is None:
-        raise RuntimeError("Need to specify workunit id and job num.")
+        raise Exception("Need to specify workunit id and job num.")
     '''
 
     # set job type and disk space reqs

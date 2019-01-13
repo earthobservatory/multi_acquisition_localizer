@@ -55,7 +55,13 @@ def dataset_exists(id, index_suffix):
         print("query: %s" % json.dumps(query, indent=2))
         print("returned: %s" % r.text)
         if r.status_code == 404: total = 0
-        else: r.raise_for_status()
+        else: 
+            err_str = "Failed to query %s:\n%s" % (es_url, r.text)
+            err_str += "\nreturned: %s" % r.text
+            print(err_str)
+            print("query: %s" % json.dumps(query, indent=2))
+            #r.raise_for_status()
+            raise RuntimeError(err_str)
     return False if total == 0 else True
 
 
@@ -67,7 +73,7 @@ def query_es(query, es_index):
     url = "{}/{}/_search?search_type=scan&scroll=60&size=100".format(rest_url, es_index)
     #logger.info("url: {}".format(url))
     r = requests.post(url, data=json.dumps(query))
-    r.raise_for_status()
+    #r.raise_for_status()
     scan_result = r.json()
     #logger.info("scan_result: {}".format(json.dumps(scan_result, indent=2)))
     count = scan_result['hits']['total']

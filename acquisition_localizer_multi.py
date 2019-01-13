@@ -93,10 +93,19 @@ def query_es(endpoint, doc_id):
     r = requests.post(search_url, data=json.dumps(query))
 
     if r.status_code != 200:
+        err_str = "Failed to query %s:\n%s" % (es_url, r.text)
+        err_str += "\nreturned: %s" % r.text
+        print(err_str)
+        print("query: %s" % json.dumps(query, indent=2))
+        #r.raise_for_status()
+        raise RuntimeError(err_str)
+    '''
+    if r.status_code != 200:
         print("Failed to query %s:\n%s" % (es_url, r.text))
         print("query: %s" % json.dumps(query, indent=2))
         print("returned: %s" % r.text)
         r.raise_for_status()
+    '''
 
     result = r.json()
 
@@ -193,10 +202,12 @@ def check_ES_status(doc_id):
     r = requests.post(search_url, data=json.dumps(query))
 
     if r.status_code != 200:
-        print("Failed to query %s:\n%s" % (es_url, r.text))
+        err_str = "Failed to query %s:\n%s" % (es_url, r.text)
+        err_str += "\nreturned: %s" % r.text
+        print(err_str)
         print("query: %s" % json.dumps(query, indent=2))
-        print("returned: %s" % r.text)
-        r.raise_for_status()
+        #r.raise_for_status()
+        raise RuntimeError(err_str)
 
     result = r.json()
 
@@ -217,11 +228,19 @@ def check_ES_status(doc_id):
         r = requests.post(search_url, data=json.dumps(query))
 
         if r.status_code != 200:
+            err_str = "Failed to query %s:\n%s" % (es_url, r.text)
+            err_str += "\nreturned: %s" % r.text
+            print(err_str)
+            print("query: %s" % json.dumps(query, indent=2))
+            #r.raise_for_status()
+            raise RuntimeError(err_str)
+        '''
+        if r.status_code != 200:
             print("Failed to query %s:\n%s" % (es_url, r.text))
             print("query: %s" % json.dumps(query, indent=2))
             print("returned: %s" % r.text)
             r.raise_for_status()
-
+        '''
         result = r.json()
         sleep_seconds = sleep_seconds * 2
 
@@ -429,7 +448,7 @@ def sling(acq_list, spyddder_extract_version, acquisition_localizer_version, esa
     if not all_exists:
         now = datetime.utcnow()
         delta = (now-slc_check_start_time).total_seconds()
-        error_str = "Error : Following SLCs are not localized after %.2f minutes: " %delta/60
+        error_str = "Error : Sling jobs NOT completed after %.2f hours : " %(delta/3600)
         for slc in slcs_not_exist:
             error_str +="\n%s"%slc
         raise RuntimeError(error_str)
@@ -643,10 +662,20 @@ def check_ES_status(doc_id):
     r = requests.post(search_url, data=json.dumps(query))
 
     if r.status_code != 200:
+        err_str = "Failed to query %s:\n%s" % (es_url, r.text)
+        err_str += "\nreturned: %s" % r.text
+        print(err_str)
+        print("query: %s" % json.dumps(query, indent=2))
+        #r.raise_for_status()
+        raise RuntimeError(err_str)
+
+    '''
+    if r.status_code != 200:
         print("Failed to query %s:\n%s" % (es_url, r.text))
         print("query: %s" % json.dumps(query, indent=2))
         print("returned: %s" % r.text)
         r.raise_for_status()
+    '''
 
     result = r.json()
 
@@ -665,12 +694,21 @@ def check_ES_status(doc_id):
         #result = ES.search(index=es_index, body=query)
 
         r = requests.post(search_url, data=json.dumps(query))
-
+        
+        if r.status_code != 200:
+            err_str = "Failed to query %s:\n%s" % (es_url, r.text)
+            err_str += "\nreturned: %s" % r.text
+            print(err_str)
+            print("query: %s" % json.dumps(query, indent=2))
+            #r.raise_for_status()
+            raise RuntimeError(err_str)
+        '''
         if r.status_code != 200:
             print("Failed to query %s:\n%s" % (es_url, r.text))
             print("query: %s" % json.dumps(query, indent=2))
             print("returned: %s" % r.text)
             r.raise_for_status()
+        '''
 
         result = r.json()
         sleep_seconds = sleep_seconds * 2

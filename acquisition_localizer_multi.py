@@ -34,7 +34,7 @@ MOZART_ES_ENDPOINT = "MOZART"
 GRQ_ES_ENDPOINT = "GRQ"
 sleep_seconds = 120
 slc_check_max_sec = 300
-sling_completion_max_sec = 10800
+sling_completion_max_sec = 14400
 MAX_TRY = 2
 
 class ACQ:

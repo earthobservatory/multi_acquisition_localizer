@@ -4,7 +4,7 @@ import hashlib
 from datetime import datetime
 #from hysds_commons.job_utils import resolve_hysds_job
 from hysds.celery import app
-import util
+import localizer_util
 import uuid  # only need this import to simulate returned mozart job id
 from hysds.celery import app
 from hysds_commons.job_utils import submit_mozart_job
@@ -249,7 +249,7 @@ def check_ES_status(doc_id):
 
 def check_slc_status(slc_id, index_suffix):
 
-    result = util.get_dataset(slc_id, index_suffix)
+    result = localizer_util.get_dataset(slc_id, index_suffix)
     total = result['hits']['total']
 
     if total > 0:
@@ -259,7 +259,7 @@ def check_slc_status(slc_id, index_suffix):
 
 def check_slc_status(slc_id):
 
-    result = util.get_dataset(slc_id)
+    result = localizer_util.get_dataset(slc_id)
     total = result['hits']['total']
 
     if total > 0:
@@ -272,8 +272,8 @@ def get_acq_data_from_list(acq_list):
     # Find out status of all Master ACQs, create a ACQ object with that and update acq_info dictionary 
     for acq in acq_list: 
         #logger.info(acq) 
-        #acq_data = util.get_acquisition_data(acq)[0]['fields']['partial'][0] 
-        acq_data = util.get_partial_grq_data(acq)['fields']['partial'][0] 
+        #acq_data = localizer_util.get_acquisition_data(acq)[0]['fields']['partial'][0] 
+        acq_data = localizer_util.get_partial_grq_data(acq)['fields']['partial'][0] 
         status = check_slc_status(acq_data['metadata']['identifier']) 
         if status: 
             # status=1 
@@ -289,7 +289,7 @@ def get_acq_data_from_query(query):
     logger.info("get_acq_data_from_query")
     acq_info = {}
 
-    hits = util.get_query_data(query)
+    hits = localizer_util.get_query_data(query)
     if hits["total"] == 0:
         raise Exception("No Acquisition Found that Matched the Criteria.")
     else:
@@ -480,7 +480,7 @@ def get_output_data(acq_info):
         if not acq_info[acq_id]['localized']:
             return None
         acq_data = acq_info[acq_id]['acq_data']
-        slc_data = util.get_partial_grq_data(acq_data['metadata']['identifier'])['fields']['partial'][0] 
+        slc_data = localizer_util.get_partial_grq_data(acq_data['metadata']['identifier'])['fields']['partial'][0] 
         localize_url = ""
         urls = slc_data['urls']
         for url in urls:

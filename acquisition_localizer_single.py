@@ -335,7 +335,7 @@ def extract_job(spyddder_extract_version, queue, localize_url, file, prod_name,
 
     # resolve hysds job
     params = {
-        "localize_url": localize_url,
+        #"localize_url": localize_url,
         "file": file,
         "prod_name": prod_name,
         "prod_date": prod_date,

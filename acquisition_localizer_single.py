@@ -331,7 +331,7 @@ def extract_job(spyddder_extract_version, queue, localize_url, file, prod_name,
 
     # set job type and disk space reqs
     job_type = "job-spyddder-extract:{}".format(spyddder_extract_version)
-    job_type = "job-spyddder-sling-extract:{}".format(spyddder_extract_version)
+    #job_type = "job-spyddder-sling-extract:{}".format(spyddder_extract_version)
 
     # resolve hysds job
     params = {
@@ -346,7 +346,8 @@ def extract_job(spyddder_extract_version, queue, localize_url, file, prod_name,
     job = resolve_hysds_job(job_type, queue, priority=priority, params=params, 
                             job_name="%s-%s-%s" % (job_type, aoi, prod_name))
 
-    # save to archive_filename if it doesn't match url basename
+    # save to archive_filename if it doesn't match url basenamea
+    '''
     localize_urls =  [
       {
         "local_path": file, 
@@ -354,6 +355,8 @@ def extract_job(spyddder_extract_version, queue, localize_url, file, prod_name,
       }
     ]
     job['payload']['localize_urls'] = localize_urls
+    '''
+
     if os.path.basename(localize_url) != file:
         job['payload']['localize_urls'][0]['local_path'] = file
     

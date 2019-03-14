@@ -240,7 +240,7 @@ def query_aoi_acquisitions(starttime, endtime, platform):
 
 def resolve_s1_slc(identifier, download_url, asf_queue, esa_queue):
     """Resolve S1 SLC using ASF datapool (ASF or NGAP). Fallback to ESA."""
-
+    url_type = "asf"
     # determine best url and corresponding queue
     vertex_url = "https://datapool.asf.alaska.edu/SLC/SA/{}.zip".format(identifier)
     r = requests.head(vertex_url, allow_redirects=True)
@@ -248,19 +248,23 @@ def resolve_s1_slc(identifier, download_url, asf_queue, esa_queue):
     if r.status_code in (200, 403):
         url = r.url
         queue = asf_queue
+        url_type = "asf"
     elif r.status_code == 404:
         url = download_url
         queue = esa_queue
+        url_type = "esa"
     else:
         url = download_url
         queue = esa_queue
+        url_type = "esa"
     if 'sonas.asf.alaska.edu' in url:
         url = download_url
         queue = esa_queue
+        url_type = "esa"
     #url = r.url
     #queue = asf_queue
         #raise RuntimeError("Got status code {} from {}: {}".format(r.status_code, vertex_url, r.url))
-    return url, queue
+    return url, queue, url_type
 
 
 class DatasetExists(Exception):
@@ -307,11 +311,13 @@ def resolve_source(dataset_type, identifier, dataset, download_url, asf_ngap_dow
         if dataset_exists(identifier, settings['ACQ_TO_DSET_MAP'][dataset]):
             raise DatasetExists("Dataset {} already exists.".format(identifier))
         '''
-        url, queue = resolve_s1_slc(identifier, download_url, asf_ngap_download_queue, esa_download_queue)
+        url, queue, url_type = resolve_s1_slc(identifier, download_url, asf_ngap_download_queue, esa_download_queue)
     else:
         raise RuntimeError("Unknown acquisition dataset: {}".format(dataset))
 
-    return extract_job(spyddder_extract_version, queue, url, archive_filename, identifier, time.strftime('%Y-%m-%d' ), job_priority, aoi)
+    #return extract_job(spyddder_extract_version, queue, url, archive_filename, identifier, time.strftime('%Y-%m-%d' ), job_priority, aoi)
+    return sling_extract_job(spyddder_extract_version, identifier, url_type, download_url, queue, file, 
+                prod_date, priority, aoi, wuid=None, job_num=None)
 
 def resolve_source_from_ctx_file(ctx_file):
     """Resolve best URL from acquisition."""
@@ -344,7 +350,7 @@ def extract_job(spyddder_extract_version, queue, localize_url, file, prod_name,
 
      
     job = resolve_hysds_job(job_type, queue, priority=priority, params=params, 
-                            job_name="%s-%s-%s" % (job_type, aoi, prod_name))
+                            job_name="%s-%s" % (job_type, prod_name))
 
     # save to archive_filename if it doesn't match url basenamea
     '''

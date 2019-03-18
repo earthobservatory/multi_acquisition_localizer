@@ -316,8 +316,14 @@ def resolve_source(dataset_type, identifier, dataset, download_url, asf_ngap_dow
         raise RuntimeError("Unknown acquisition dataset: {}".format(dataset))
 
     #return extract_job(spyddder_extract_version, queue, url, archive_filename, identifier, time.strftime('%Y-%m-%d' ), job_priority, aoi)
-    return sling_extract_job(spyddder_extract_version, identifier, url_type, download_url, queue, file, 
-                prod_date, priority, aoi, wuid=None, job_num=None)
+    try:
+        return sling_extract_job(spyddder_extract_version, identifier, url_type, download_url, queue, archive_filename,  
+                time.strftime('%Y-%m-%d' ), job_priority, aoi)
+    except Exception as err:
+        logger.info("ERROR running sling_extract_job : %s" %str(err)
+        logger.info("Calling spyddder extract..")
+
+        return extract_job(spyddder_extract_version, queue, url, archive_filename, identifier, time.strftime('%Y-%m-%d' ), job_priority, aoi)
 
 def resolve_source_from_ctx_file(ctx_file):
     """Resolve best URL from acquisition."""
@@ -375,7 +381,7 @@ def extract_job(spyddder_extract_version, queue, localize_url, file, prod_name,
 
     return submit_hysds_job(job)
 
-def sling_extract_job(sling_extract_version, slc_id, url_type, download_url, queue, file, 
+def sling_extract_job(sling_extract_version, slc_id, url_type, download_url, queue, archive_file, 
                 prod_date, priority, aoi, wuid=None, job_num=None):
     """Map function for spyddder-man extract job."""
 
@@ -394,10 +400,10 @@ def sling_extract_job(sling_extract_version, slc_id, url_type, download_url, que
         "slc_id": slc_id,
         "source" : url_type,
         "download_url" : download_url,
-        "file": file,
+        "file": archive_file,
         "prod_name": slc_id,
         "prod_date": prod_date,
-        "aoi": aoi,
+        "aoi": aoi
     }
 
 

@@ -317,11 +317,11 @@ def resolve_source(dataset_type, identifier, dataset, download_url, asf_ngap_dow
 
     #return extract_job(spyddder_extract_version, queue, url, archive_filename, identifier, time.strftime('%Y-%m-%d' ), job_priority, aoi)
     try:
-        return extract_job(spyddder_extract_version, queue, url, archive_filename, identifier, time.strftime('%Y-%m-%d' ), job_priority, aoi)
-        '''
+        #return extract_job(spyddder_extract_version, queue, url, archive_filename, identifier, time.strftime('%Y-%m-%d' ), job_priority, aoi)
+        
         return sling_extract_job(spyddder_extract_version, identifier, url_type, download_url, queue, archive_filename,  
                 time.strftime('%Y-%m-%d' ), job_priority, aoi)
-        '''
+        
     except Exception as err:
         logger.info("ERROR running sling_extract_job : %s" %str(err))
         logger.info("Calling spyddder extract..")

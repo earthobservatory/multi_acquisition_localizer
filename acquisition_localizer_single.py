@@ -252,15 +252,15 @@ def resolve_s1_slc(identifier, download_url, asf_queue, esa_queue):
     elif r.status_code == 404:
         url = download_url
         queue = esa_queue
-        url_type = "esa"
+        url_type = "scihub"
     else:
         url = download_url
         queue = esa_queue
-        url_type = "esa"
+        url_type = "scihub"
     if 'sonas.asf.alaska.edu' in url:
         url = download_url
         queue = esa_queue
-        url_type = "esa"
+        url_type = "scihub"
     #url = r.url
     #queue = asf_queue
         #raise RuntimeError("Got status code {} from {}: {}".format(r.status_code, vertex_url, r.url))
@@ -393,7 +393,7 @@ def sling_extract_job(sling_extract_version, slc_id, url_type, download_url, que
     # set job type and disk space reqs
     #job_type = "job-spyddder-extract:{}".format(spyddder_extract_version)
     logger.info("\nsling_extract_job for :%s" %slc_id)
-    job_type = "job-spyddder-sling-extract:{}".format(sling_extract_version)
+    job_type = "job-spyddder-sling-extract-{}:{}".format(url_type, sling_extract_version)
 
     # resolve hysds job
     params = {

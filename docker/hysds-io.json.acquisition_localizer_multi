@@ -9,15 +9,15 @@
       "name": "asf_ngap_download_queue",
       "from": "submitter",
       "type": "enum",
-      "default": "factotum-job_worker-asf_throttled",
-      "enumerables": ["factotum-job_worker-asf_throttled"]
+      "default": "spyddder-sling-extract-asf",
+      "enumerables": ["spyddder-sling-extract-asf", "factotum-job_worker-asf_throttled"]
     },
     {
       "name": "esa_download_queue",
       "from": "submitter",
       "type": "enum",
-      "default": "factotum-job_worker-scihub_throttled",
-      "enumerables": ["factotum-job_worker-apihub_throttled", "factotum-job_worker-scihub_throttled"]
+      "default": "spyddder-sling-extract-scihub",
+      "enumerables": ["spyddder-sling-extract-scihub", "factotum-job_worker-apihub_throttled", "factotum-job_worker-scihub_throttled"]
     },
     {
       "name": "spyddder_extract_version",

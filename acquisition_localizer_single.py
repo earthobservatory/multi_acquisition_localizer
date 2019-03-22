@@ -241,6 +241,10 @@ def query_aoi_acquisitions(starttime, endtime, platform):
 def resolve_s1_slc(identifier, download_url, asf_queue, esa_queue):
     """Resolve S1 SLC using ASF datapool (ASF or NGAP). Fallback to ESA."""
     url_type = "asf"
+
+    #asf_queue = "spyddder-sling-extract-asf"
+    #esa_queue = "spyddder-sling-extract-scihub"
+
     # determine best url and corresponding queue
     vertex_url = "https://datapool.asf.alaska.edu/SLC/SA/{}.zip".format(identifier)
     r = requests.head(vertex_url, allow_redirects=True)
@@ -331,6 +335,33 @@ def resolve_source_from_ctx_file(ctx_file):
     with open(ctx_file) as f:
         return resolve_source_from_ctx(json.load(f))
 
+def sling_extract_job(sling_extract_version, slc_id, url_type, download_url, queue, archive_file,
+                prod_date, priority, aoi, wuid=None, job_num=None):
+    """Map function for spyddder-man extract job."""
+
+    # set job type and disk space reqs
+    #job_type = "job-spyddder-extract:{}".format(spyddder_extract_version)
+    logger.info("\nsling_extract_job for :%s" %slc_id)
+    job_type = "job-spyddder-sling-extract-{}:{}".format(url_type, sling_extract_version)
+
+    # resolve hysds job
+    params = {
+        "slc_id": slc_id
+    }
+
+
+    job = resolve_hysds_job(job_type, queue, priority=priority, params=params,
+                            job_name="%s-%s" % (job_type, slc_id))
+
+
+    # add workflow info
+    #if wuid is not None and job_num is not None:
+    job['payload']['_sciflo_wuid'] = wuid
+    job['payload']['_sciflo_job_num'] = job_num
+    #print("job: {}".format(json.dumps(job, indent=2)))
+
+    return submit_hysds_job(job)
+
 
 def extract_job(spyddder_extract_version, queue, localize_url, file, prod_name,
                 prod_date, priority, aoi, wuid=None, job_num=None):
@@ -381,54 +412,3 @@ def extract_job(spyddder_extract_version, queue, localize_url, file, prod_name,
 
     return submit_hysds_job(job)
 
-def sling_extract_job(sling_extract_version, slc_id, url_type, download_url, queue, archive_file, 
-                prod_date, priority, aoi, wuid=None, job_num=None):
-    """Map function for spyddder-man extract job."""
-
-    '''
-    if wuid is None or job_num is None:
-        raise RuntimeError("Need to specify workunit id and job num.")
-    '''
-
-    # set job type and disk space reqs
-    #job_type = "job-spyddder-extract:{}".format(spyddder_extract_version)
-    logger.info("\nsling_extract_job for :%s" %slc_id)
-    job_type = "job-spyddder-sling-extract-{}:{}".format(url_type, sling_extract_version)
-
-    # resolve hysds job
-    params = {
-        "slc_id": slc_id,
-        "source" : url_type,
-        "download_url" : download_url,
-        "file": archive_file,
-        "prod_name": slc_id,
-        "prod_date": prod_date,
-        "aoi": aoi
-    }
-
-
-    job = resolve_hysds_job(job_type, queue, priority=priority, params=params,
-                            job_name="%s-%s" % (job_type, slc_id))
-
-    # save to archive_filename if it doesn't match url basenamea
-    '''
-    localize_urls =  [
-      {
-        "local_path": file, 
-        "url": localize_url
-      }
-    ]
-    job['payload']['localize_urls'] = localize_urls
-    
-   
-    if os.path.basename(localize_url) != file:
-        job['payload']['localize_urls'][0]['local_path'] = file
-    '''
-
-    # add workflow info
-    #if wuid is not None and job_num is not None:
-    job['payload']['_sciflo_wuid'] = wuid
-    job['payload']['_sciflo_job_num'] = job_num
-    #print("job: {}".format(json.dumps(job, indent=2)))
-
-    return submit_hysds_job(job)

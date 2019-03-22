@@ -24,6 +24,7 @@
       "from": "submitter",
       "default": "develop",
       "type": "jobspec_version",
+      "version_regex": "job-spyddder-sling-extract"
       "placeholder": "spyddder-man sling extract job version"
     },
     {

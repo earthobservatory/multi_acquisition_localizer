@@ -24,7 +24,6 @@
       "from": "submitter",
       "default": "develop",
       "type": "jobspec_version",
-      "version_regex": "job-spyddder-extract",
       "placeholder": "spyddder-man extract job version"
     },
     {

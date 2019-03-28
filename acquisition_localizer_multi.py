@@ -9,6 +9,7 @@ import uuid  # only need this import to simulate returned mozart job id
 from hysds.celery import app
 from hysds_commons.job_utils import submit_mozart_job
 import traceback
+import time, random
 
 import acquisition_localizer_single
 
@@ -251,7 +252,10 @@ def check_slc_status(slc_id, index_suffix):
 
     result = localizer_util.get_dataset(slc_id, index_suffix)
     total = result['hits']['total']
-
+    if total == 0:
+        time.sleep(random.randint(5, 21))
+        result = localizer_util.get_dataset(slc_id, index_suffix)
+        total = result['hits']['total']
     if total > 0:
         return True
 
@@ -261,6 +265,10 @@ def check_slc_status(slc_id):
 
     result = localizer_util.get_dataset(slc_id)
     total = result['hits']['total']
+    if total == 0:
+        time.sleep(random.randint(5, 21))
+        result = localizer_util.get_dataset(slc_id, index_suffix)
+        total = result['hits']['total']
 
     if total > 0:
         return True
@@ -312,7 +320,7 @@ def get_acq_data_from_list(acq_list):
         #acq_data = localizer_util.get_acquisition_data(acq)[0]['fields']['partial'][0]
         total, acq_data_value =  get_acq_data(acq)
         if total ==0:
-            time.sleep(10)
+            time.sleep(random.randint(5, 21))
             total, acq_data_value =  get_acq_data(acq)
             if total ==0:
                 logger.info("Failed to get information about Acqusition(possibly missing??) : %s" %acq)
@@ -336,7 +344,10 @@ def get_acq_data_from_query(query):
 
     hits = localizer_util.get_query_data(query)
     if hits["total"] == 0:
-        raise RuntimeError("No Acquisition Found that Matched the Criteria.")
+        time.sleep(random.randint(5, 21))
+        hits = localizer_util.get_query_data(query)
+        if hits["total"] == 0:
+            raise RuntimeError("No Acquisition Found that Matched the Criteria.")
     else:
         logger.info("get_acq_data_from_query : Found %s data" %hits["total"])
  

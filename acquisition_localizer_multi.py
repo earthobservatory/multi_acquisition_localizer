@@ -98,7 +98,7 @@ def query_es(endpoint, doc_id):
         print(err_str)
         print("query: %s" % json.dumps(query, indent=2))
         #r.raise_for_status()
-        raise Exception(err_str)
+        raise RuntimeError(err_str)
     '''
     if r.status_code != 200:
         print("Failed to query %s:\n%s" % (es_url, r.text))
@@ -207,7 +207,7 @@ def check_ES_status(doc_id):
         print(err_str)
         print("query: %s" % json.dumps(query, indent=2))
         #r.raise_for_status()
-        raise Exception(err_str)
+        raise RuntimeError(err_str)
 
     result = r.json()
 
@@ -219,9 +219,9 @@ def check_ES_status(doc_id):
     while len(result["hits"]["hits"]) == 0: #or str(result["hits"]["hits"][0]["_source"]["status"]) == "job-started":
         if sleep_seconds >= timeout_seconds:
             if len(result["hits"]["hits"]) == 0:
-                raise Exception("ES taking too long to index job with id %s."%doc_id)
+                raise RuntimeError("ES taking too long to index job with id %s."%doc_id)
             else:
-                raise Exception("ES taking too long to update status of job with id %s."%doc_id)
+                raise RuntimeError("ES taking too long to update status of job with id %s."%doc_id)
         time.sleep(sleep_seconds)
         #result = ES.search(index=es_index, body=query)
 
@@ -233,7 +233,7 @@ def check_ES_status(doc_id):
             print(err_str)
             print("query: %s" % json.dumps(query, indent=2))
             #r.raise_for_status()
-            raise Exception(err_str)
+            raise RuntimeError(err_str)
         '''
         if r.status_code != 200:
             print("Failed to query %s:\n%s" % (es_url, r.text))
@@ -266,14 +266,59 @@ def check_slc_status(slc_id):
         return True
 
     return False
+
+def get_acq_data(id):
+    es_url = GRQ_URL
+    es_index = "grq"
+
+    query = {
+        "query": {
+            "term": {
+                "_id": id,
+            },
+        },
+        "partial_fields" : {
+            "partial" : {
+                "exclude" : "city",
+            }
+        }
+    }
+
+    print(query)
+
+    if es_url.endswith('/'):
+        search_url = '%s%s/_search' % (es_url, es_index)
+    else:
+        search_url = '%s/%s/_search' % (es_url, es_index)
+    r = requests.post(search_url, data=json.dumps(query))
+
+    if r.status_code != 200:
+        print("Failed to query %s:\n%s" % (es_url, r.text))
+        print("query: %s" % json.dumps(query, indent=2))
+        print("returned: %s" % r.text)
+        r.raise_for_status()
+
+    result = r.json()
+    print(result['hits']['total'])
+    return result['hits']['total'], result['hits']['hits'][0]
+
+
 def get_acq_data_from_list(acq_list):
     logger.info("get_acq_data_from_list")
     acq_info = {}
     # Find out status of all Master ACQs, create a ACQ object with that and update acq_info dictionary 
     for acq in acq_list: 
         #logger.info(acq) 
-        #acq_data = localizer_util.get_acquisition_data(acq)[0]['fields']['partial'][0] 
-        acq_data = localizer_util.get_partial_grq_data(acq)['fields']['partial'][0] 
+        #acq_data = localizer_util.get_acquisition_data(acq)[0]['fields']['partial'][0]
+        total, acq_data_value =  get_acq_data(acq)
+        if total ==0:
+            time.sleep(10)
+            total, acq_data_value =  get_acq_data(acq)
+            if total ==0:
+                logger.info("Failed to get information about Acqusition(possibly missing??) : %s" %acq)
+                raise RuntimeError("Failed to get information about Acqusition(possibly missing??) : %s" %acq)
+        
+        acq_data = acq_data_value['fields']['partial'][0] 
         status = check_slc_status(acq_data['metadata']['identifier']) 
         if status: 
             # status=1 
@@ -291,7 +336,7 @@ def get_acq_data_from_query(query):
 
     hits = localizer_util.get_query_data(query)
     if hits["total"] == 0:
-        raise Exception("No Acquisition Found that Matched the Criteria.")
+        raise RuntimeError("No Acquisition Found that Matched the Criteria.")
     else:
         logger.info("get_acq_data_from_query : Found %s data" %hits["total"])
  
@@ -407,7 +452,7 @@ def sling(acq_list, spyddder_extract_version, acquisition_localizer_version, esa
                     acq_info[acq_id]['job_status'] = job_status
                     err_msg = "Error : Sling job %s FAILED" %job_id
                     logger.info(err_msg)
-                    #raise Exception(err_msg)
+                    #raise RuntimeError(err_msg)
 
                 else:
                     acq_info[acq_id]['job_id'] = job_id
@@ -422,7 +467,7 @@ def sling(acq_list, spyddder_extract_version, acquisition_localizer_version, esa
             logger.info("present job run time : %s secs. Timeout time : %s secs" %(delta, sling_completion_max_sec))
 
             if delta >= sling_completion_max_sec:
-                raise Exception("Error : Sling jobs NOT completed after %.2f hours!!" %(delta/3600))
+                raise RuntimeError("Error : Sling jobs NOT completed after %.2f hours!!" %(delta/3600))
             logger.info("All job not completed. So sleeping for %s seconds" %sleep_seconds)
             time.sleep(sleep_seconds)
 
@@ -457,14 +502,14 @@ def sling(acq_list, spyddder_extract_version, acquisition_localizer_version, esa
         error_str = "Error : Sling jobs NOT completed after %.2f hours : " %(delta/3600)
         for slc in slcs_not_exist:
             error_str +="\n%s"%slc
-        raise Exception(error_str)
+        raise RuntimeError(error_str)
     
     #At this point we have all the slcs localized
     if all_exists:
         localized_data = get_output_data(acq_info)
         return True, localized_data
     else:
-        raise Exception(error_str)
+        raise RuntimeError(error_str)
         
     
     
@@ -673,7 +718,7 @@ def check_ES_status(doc_id):
         print(err_str)
         print("query: %s" % json.dumps(query, indent=2))
         #r.raise_for_status()
-        raise Exception(err_str)
+        raise RuntimeError(err_str)
 
     '''
     if r.status_code != 200:
@@ -693,9 +738,9 @@ def check_ES_status(doc_id):
     while len(result["hits"]["hits"]) == 0: #or str(result["hits"]["hits"][0]["_source"]["status"]) == "job-started":
         if sleep_seconds >= timeout_seconds:
             if len(result["hits"]["hits"]) == 0:
-                raise Exception("ES taking too long to index job with id %s."%doc_id)
+                raise RuntimeError("ES taking too long to index job with id %s."%doc_id)
             else:
-                raise Exception("ES taking too long to update status of job with id %s."%doc_id)
+                raise RuntimeError("ES taking too long to update status of job with id %s."%doc_id)
         time.sleep(sleep_seconds)
         #result = ES.search(index=es_index, body=query)
 
@@ -707,7 +752,7 @@ def check_ES_status(doc_id):
             print(err_str)
             print("query: %s" % json.dumps(query, indent=2))
             #r.raise_for_status()
-            raise Exception(err_str)
+            raise RuntimeError(err_str)
         '''
         if r.status_code != 200:
             print("Failed to query %s:\n%s" % (es_url, r.text))
@@ -727,7 +772,7 @@ def main():
 
     context_file = os.path.abspath("_context.json")
     if not os.path.exists(context_file):
-        raise Exception("Context file doesn't exist.")
+        raise RuntimeError("Context file doesn't exist.")
     resolve_source(context_file)
 
 if __name__ == "__main__":

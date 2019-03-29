@@ -270,7 +270,7 @@ def check_slc_status(slc_id):
     total = result['hits']['total']
     if total == 0:
         time.sleep(random.randint(5, 21))
-        result = localizer_util.get_dataset(slc_id, index_suffix)
+        result = localizer_util.get_dataset(slc_id)
         total = result['hits']['total']
 
     if total > 0:

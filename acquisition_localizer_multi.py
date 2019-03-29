@@ -13,6 +13,9 @@ import time, random
 
 import acquisition_localizer_single
 
+GRQ_URL = app.conf.GRQ_ES_URL
+
+
 # set logger
 log_format = "[%(asctime)s: %(levelname)s/%(name)s/%(funcName)s] %(message)s"
 logging.basicConfig(format=log_format, level=logging.INFO)

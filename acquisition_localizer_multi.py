@@ -379,14 +379,13 @@ def resolve_source(ctx_file):
     with open(ctx_file) as f:
         ctx = json.load(f)
     
-    spyddder_extract_version = "develop"
     acq_info = {}
 
     acq_list = ctx['products'] if isinstance(ctx['products'], list) else [ctx['products']]
     logger.info("Acq List Type : %s" %type(acq_list))
  
-    if "spyddder_extract_version" in ctx:
-        spyddder_extract_version = ctx["spyddder_extract_version"]
+
+    spyddder_sling_extract_version = ctx.get('spyddder_sling_extract_version', 'develop')
 
     asf_ngap_download_queue = ctx['asf_ngap_download_queue']
     esa_download_queue = ctx['esa_download_queue']
@@ -404,7 +403,7 @@ def resolve_source(ctx_file):
     index_suffix = "S1-IW_ACQ"
 
 
-    return sling(acq_list, spyddder_extract_version, acquisition_localizer_version, esa_download_queue, asf_ngap_download_queue, job_priority, job_type, job_version)
+    return sling(acq_list, spyddder_sling_extract_version, acquisition_localizer_version, esa_download_queue, asf_ngap_download_queue, job_priority, job_type, job_version)
 
 
 

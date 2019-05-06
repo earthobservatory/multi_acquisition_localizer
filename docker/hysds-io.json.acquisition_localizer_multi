@@ -16,7 +16,7 @@
       "name": "esa_download_queue",
       "from": "submitter",
       "type": "enum",
-      "default": "spyddder-sling-extract-scihub",
+      "default": "factotum-job_worker-scihub_throttled",
       "enumerables": ["spyddder-sling-extract-scihub", "factotum-job_worker-apihub_throttled", "factotum-job_worker-scihub_throttled"]
     },
     {

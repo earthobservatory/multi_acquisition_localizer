@@ -256,13 +256,26 @@ def check_ES_status(doc_id):
     logging.info("Job status updated on ES to %s"%str(result["hits"]["hits"][0]["_source"]["status"]))
     return True
 
+
+def get_slc_dataset_with_opds(slc_id, index_suffix=None):
+    slc_id_pds = slc_id + "-pds"
+    if index_suffix:
+        result_orig = localizer_util.get_dataset(slc_id, index_suffix)
+        result_pds = localizer_util.get_dataset(slc_id_pds, index_suffix)
+    else:
+        result_orig = localizer_util.get_dataset(slc_id)
+        result_pds = localizer_util.get_dataset(slc_id_pds)
+
+    result = result_orig if result_orig['hits']['total'] >  result_pds['hits']['total']  else result_pds
+    return result
+
 def check_slc_status(slc_id, index_suffix):
 
-    result = localizer_util.get_dataset(slc_id, index_suffix)
+    result = get_slc_dataset_with_opds(slc_id, index_suffix)
     total = result['hits']['total']
     if total == 0:
         time.sleep(random.randint(5, 21))
-        result = localizer_util.get_dataset(slc_id, index_suffix)
+        result = get_slc_dataset_with_opds(slc_id, index_suffix)
         total = result['hits']['total']
     if total > 0:
         return True
@@ -271,11 +284,11 @@ def check_slc_status(slc_id, index_suffix):
 
 def check_slc_status(slc_id):
 
-    result = localizer_util.get_dataset(slc_id)
+    result = get_slc_dataset_with_opds(slc_id)
     total = result['hits']['total']
     if total == 0:
         time.sleep(random.randint(5, 21))
-        result = localizer_util.get_dataset(slc_id)
+        result = get_slc_dataset_with_opds(slc_id)
         total = result['hits']['total']
 
     if total > 0:

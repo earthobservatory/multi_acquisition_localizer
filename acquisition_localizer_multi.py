@@ -359,6 +359,7 @@ def get_acq_data_from_list(acq_list):
             acq_info[acq]=get_acq_object(acq, acq_data, 0)
     return acq_info
 
+
 def get_acq_data_from_query(query):
     logger.info("get_acq_data_from_query")
     acq_info = {}
@@ -401,7 +402,6 @@ def resolve_source(ctx_file):
 
     acq_list = ctx['products'] if isinstance(ctx['products'], list) else [ctx['products']]
     logger.info("Acq List Type : %s" %type(acq_list))
- 
 
     spyddder_sling_extract_version = ctx.get('spyddder_sling_extract_version', 'develop')
 
@@ -415,9 +415,6 @@ def resolve_source(ctx_file):
     queues = []  # where should we get the queue value
     identifiers = []
     prod_dates = []
-   
-
-    
     index_suffix = "S1-IW_ACQ"
 
 
@@ -454,8 +451,6 @@ def sling(acq_list, spyddder_extract_version, acquisition_localizer_version, esa
     logger.info("No of sling job : %s" %no_of_localize_job)
     logger.info("All the sling jobs have been submitted, if needed. Exiting")
     return True, []
-
-
 
 
     sling_completion_max_sec_count = 2000 * no_of_localize_job
@@ -505,7 +500,6 @@ def sling(acq_list, spyddder_extract_version, acquisition_localizer_version, esa
 
 
     #At this point, all sling jobs have been completed. Now lets recheck the slc status
-
 
     logger.info("\nAll sling jobs have been completed. Now lets recheck the slc status")
     all_exists = False

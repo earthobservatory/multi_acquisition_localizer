@@ -7,7 +7,8 @@
   },
   "recommended-queues" : [ "system-jobs-queue" ],
   "soft_time_limit": 86400,
-  "time_limit": 87000, 
+  "time_limit": 87000,
+  "disk_usage": "50GB",
   "params" : [
     {
       "name": "asf_ngap_download_queue",

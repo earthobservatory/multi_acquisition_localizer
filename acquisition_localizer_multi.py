@@ -1,4 +1,9 @@
 #!/usr/bin/env python 
+from __future__ import division
+from builtins import str
+from builtins import range
+from past.utils import old_div
+from builtins import object
 import os, sys, time, json, requests, logging
 import hashlib
 from datetime import datetime
@@ -41,7 +46,7 @@ slc_check_max_sec = 300
 sling_completion_max_sec = 14400
 MAX_TRY = 2
 
-class ACQ:
+class ACQ(object):
     def __init__(self, acq_id, acq_data, localized=False, job_id=None, job_status = None):
         self.acq_id=acq_id
         self.acq_data = acq_data
@@ -420,8 +425,8 @@ def sling(acq_list, spyddder_extract_version, acquisition_localizer_version, esa
     logger.info("%s : %s" %(type(spyddder_extract_version), spyddder_extract_version))
     # acq_info has now all the ACQ's status. Now submit the Sling job for the one's whose status = 0 and update the slc_info with job id
     no_of_localize_job = 0
-    logger.info("acquisition-localizer-multi : total acq in list : %s" %len(acq_info.keys()))
-    for acq_id in acq_info.keys():
+    logger.info("acquisition-localizer-multi : total acq in list : %s" %len(list(acq_info.keys())))
+    for acq_id in list(acq_info.keys()):
         #acq_info[acq_id]['localized'] = False
         if not acq_info[acq_id]['localized']:
             acq_data = acq_info[acq_id]['acq_data']
@@ -451,7 +456,7 @@ def sling(acq_list, spyddder_extract_version, acquisition_localizer_version, esa
     sling_check_start_time = datetime.utcnow()
     while not all_done:
 
-        for acq_id in acq_info.keys():
+        for acq_id in list(acq_info.keys()):
             acq_data = acq_info[acq_id]['acq_data']
             if not acq_info[acq_id]['localized']: 
                 job_status, job_id  = get_job_status(acq_info[acq_id]['job_id'])  
@@ -480,7 +485,7 @@ def sling(acq_list, spyddder_extract_version, acquisition_localizer_version, esa
             logger.info("present job run time : %s secs. Timeout time : %s secs" %(delta, sling_completion_max_sec))
 
             if delta >= sling_completion_max_sec:
-                raise RuntimeError("Error : Sling jobs NOT completed after %.2f hours!!" %(delta/3600))
+                raise RuntimeError("Error : Sling jobs NOT completed after %.2f hours!!" %(old_div(delta,3600)))
             logger.info("All job not completed. So sleeping for %s seconds" %sleep_seconds)
             time.sleep(sleep_seconds)
 
@@ -497,7 +502,7 @@ def sling(acq_list, spyddder_extract_version, acquisition_localizer_version, esa
     while not all_exists:
         all_exists = True
         slcs_not_exist = []
-        for acq_id in acq_info.keys():
+        for acq_id in list(acq_info.keys()):
             if not acq_info[acq_id]['localized']:
                 acq_data = acq_info[acq_id]['acq_data']
                 acq_info[acq_id]['localized'] = check_slc_status(acq_data['metadata']['identifier'])
@@ -512,7 +517,7 @@ def sling(acq_list, spyddder_extract_version, acquisition_localizer_version, esa
     if not all_exists:
         now = datetime.utcnow()
         delta = (now-slc_check_start_time).total_seconds()
-        error_str = "Error : Sling jobs NOT completed after %.2f hours : " %(delta/3600)
+        error_str = "Error : Sling jobs NOT completed after %.2f hours : " %(old_div(delta,3600))
         for slc in slcs_not_exist:
             error_str +="\n%s"%slc
         raise RuntimeError(error_str)
@@ -540,7 +545,7 @@ def sling(acq_list, spyddder_extract_version, acquisition_localizer_version, esa
 
 def get_output_data(acq_info):
     localized_data = {}
-    for acq_id in acq_info.keys():
+    for acq_id in list(acq_info.keys()):
         if not acq_info[acq_id]['localized']:
             return None
         acq_data = acq_info[acq_id]['acq_data']
@@ -566,7 +571,7 @@ def get_output_data(acq_info):
 
 def check_all_job_completed(acq_info):
     all_done = True
-    for acq_id in acq_info.keys():
+    for acq_id in list(acq_info.keys()):
         if not acq_info[acq_id]['localized']:  
             job_status = acq_info[acq_id]['job_status']
             if not job_status == "job-completed":
@@ -578,7 +583,7 @@ def check_all_job_completed(acq_info):
 
 def check_failed_jobs(acq_info):
     failed_jobs = []
-    for acq_id in acq_info.keys():
+    for acq_id in list(acq_info.keys()):
         if not acq_info[acq_id]['localized']:
             job_status = acq_info[acq_id]['job_status']
             if job_status == "job-failed":

@@ -1,4 +1,5 @@
 #!/usr/bin/env python 
+from builtins import str
 import os, sys, time, json, requests, logging
 
 from hysds_commons.job_utils import resolve_hysds_job

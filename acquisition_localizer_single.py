@@ -249,7 +249,7 @@ def resolve_s1_slc(identifier, download_url, asf_queue, esa_queue):
     vertex_url = "https://datapool.asf.alaska.edu/SLC/SA/{}.zip".format(identifier)
     r = requests.head(vertex_url, allow_redirects=True)
     logger.info("Status Code from ASF : %s" %r.status_code)
-    if r.status_code in (200, 403):
+    if asf_queue and r.status_code in (200, 403):
         url = r.url
         queue = asf_queue
         url_type = "asf"

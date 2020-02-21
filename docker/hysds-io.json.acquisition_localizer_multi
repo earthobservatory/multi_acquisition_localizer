@@ -10,7 +10,7 @@
       "from": "submitter",
       "type": "enum",
       "default": "spyddder-sling-extract-asf",
-      "enumerables": ["spyddder-sling-extract-asf", "factotum-job_worker-asf_throttled"]
+      "enumerables": ["spyddder-sling-extract-asf", "factotum-job_worker-asf_throttled", "NA"]
     },
     {
       "name": "esa_download_queue",

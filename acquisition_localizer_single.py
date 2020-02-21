@@ -249,7 +249,7 @@ def resolve_s1_slc(identifier, download_url, asf_queue, esa_queue):
     vertex_url = "https://datapool.asf.alaska.edu/SLC/SA/{}.zip".format(identifier)
     r = requests.head(vertex_url, allow_redirects=True)
     logger.info("Status Code from ASF : %s" %r.status_code)
-    if r.status_code in (200, 403):
+    if asf_queue.upper() != "NA" and r.status_code in (200, 403):
         url = r.url
         queue = asf_queue
         url_type = "asf"
@@ -324,10 +324,12 @@ def resolve_source(dataset_type, identifier, dataset, download_url, asf_ngap_dow
         return sling_extract_job(spyddder_extract_version, identifier, url_type, download_url, queue, archive_filename,  
                 time.strftime('%Y-%m-%d' ), job_priority, aoi)
     except Exception as err:
-        logger.info("ERROR running sling_extract_job : %s" %str(err))
-        logger.info("Calling spyddder extract..")
+        err_msg = "ERROR running sling_extract_job : %s" %str(err)
+        logger.info(err_msg)
+        traceback.print_exc()
+        raise RuntimeError(err_msg)
 
-        return extract_job(spyddder_extract_version, queue, url, archive_filename, identifier, time.strftime('%Y-%m-%d' ), job_priority, aoi)
+        #return extract_job(spyddder_extract_version, queue, url, archive_filename, identifier, time.strftime('%Y-%m-%d' ), job_priority, aoi)
 
 def resolve_source_from_ctx_file(ctx_file):
     """Resolve best URL from acquisition."""

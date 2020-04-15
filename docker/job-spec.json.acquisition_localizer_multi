@@ -1,13 +1,14 @@
 {
   "command": "/home/ops/verdi/ops/multi_acquisition_localizer/multi_acquisition_localizer.sh",
   "imported_worker_files": {
-    "/home/ops/.netrc": ["/home/ops/.netrc"],
-    "/home/ops/.aws": ["/home/ops/.aws", "ro"],
-    "/home/ops/verdi/etc/settings.conf": "/home/ops/verdi/ops/multi_acquisition_localizer/settings.conf"
+    "$HOME/.netrc": ["/home/ops/.netrc"],
+    "$HOME/.aws": ["/home/ops/.aws", "ro"],
+    "$HOME/verdi/etc/settings.conf": "/home/ops/verdi/ops/multi_acquisition_localizer/settings.conf"
   },
   "recommended-queues" : [ "system-jobs-queue" ],
   "soft_time_limit": 86400,
   "time_limit": 87000, 
+  "disk_usage": "50GB",
   "params" : [
     {
       "name": "asf_ngap_download_queue",

@@ -1,4 +1,4 @@
-FROM hysds/pge-isce_giant
+FROM hysds/pge-base:latest
 
 MAINTAINER mkarim "Mohammed.R.Karim@jpl.nasa.gov"
 LABEL description="multi acquisition-localizer"
@@ -22,22 +22,17 @@ USER root
 # copy packages
 COPY . /home/ops/verdi/ops/multi_acquisition_localizer
 
-
-RUN pip install elasticsearch
-
 # as ops user
 USER ops
 
 # create work directory
 RUN set -ex \
+ && source /home/ops/verdi/bin/activate \
+ && pip install elasticsearch \
  && mkdir -p /data/work \
  && chmod -R 755 /data \
- && chown -R ops:ops /data
-
-
-RUN set -ex \
+ && chown -R ops:ops /data \
  && sudo chown -R ops:ops /home/ops/verdi/ops/multi_acquisition_localizer
-
 
 
 WORKDIR /home/ops

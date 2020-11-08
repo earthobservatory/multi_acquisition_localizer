@@ -323,7 +323,7 @@ def resolve_source(dataset_type, identifier, dataset, download_url, asf_ngap_dow
 
     try:
         #return extract_job(spyddder_extract_version, queue, url, archive_filename, identifier, time.strftime('%Y-%m-%d' ), job_priority, aoi)
-        return sling_extract_job(spyddder_extract_version, identifier, url_type, download_url, queue, archive_filename,  
+        return sling_extract_job(spyddder_extract_version, identifier, url_type, download_url, queue, archive_filename,
                 time.strftime('%Y-%m-%d' ), job_priority, aoi)
     except Exception as err:
         err_msg = "ERROR running sling_extract_job : %s" %str(err)
@@ -346,7 +346,8 @@ def sling_extract_job(sling_extract_version, slc_id, url_type, download_url, que
     # set job type and disk space reqs
     #job_type = "job-spyddder-extract:{}".format(spyddder_extract_version)
     logger.info("\nsling_extract_job for :%s" %slc_id)
-    job_type = "job-spyddder-sling-extract-{}:{}".format(url_type, sling_extract_version)
+    # Change for OPDS sling pipeline: switch to job name for opds slings
+    job_type = "job-sling-extract-opds:{}".format(sling_extract_version)
 
     # resolve hysds job
     params = {

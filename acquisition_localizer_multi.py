@@ -256,26 +256,13 @@ def check_ES_status(doc_id):
     logging.info("Job status updated on ES to %s"%str(result["hits"]["hits"][0]["_source"]["status"]))
     return True
 
-
-def get_slc_dataset_with_opds(slc_id, index_suffix=None):
-    slc_id_pds = slc_id + "-pds"
-    if index_suffix:
-        result_orig = localizer_util.get_dataset(slc_id, index_suffix)
-        result_pds = localizer_util.get_dataset(slc_id_pds, index_suffix)
-    else:
-        result_orig = localizer_util.get_dataset(slc_id)
-        result_pds = localizer_util.get_dataset(slc_id_pds)
-
-    result = result_orig if result_orig['hits']['total'] >  result_pds['hits']['total']  else result_pds
-    return result
-
 def check_slc_status(slc_id, index_suffix):
 
-    result = get_slc_dataset_with_opds(slc_id, index_suffix)
+    result = localizer_util.get_dataset(slc_id, index_suffix)
     total = result['hits']['total']
     if total == 0:
         time.sleep(random.randint(5, 21))
-        result = get_slc_dataset_with_opds(slc_id, index_suffix)
+        result = localizer_util.get_dataset(slc_id, index_suffix)
         total = result['hits']['total']
     if total > 0:
         return True
@@ -284,11 +271,11 @@ def check_slc_status(slc_id, index_suffix):
 
 def check_slc_status(slc_id):
 
-    result = get_slc_dataset_with_opds(slc_id)
+    result = localizer_util.get_dataset(slc_id)
     total = result['hits']['total']
     if total == 0:
         time.sleep(random.randint(5, 21))
-        result = get_slc_dataset_with_opds(slc_id)
+        result = localizer_util.get_dataset(slc_id)
         total = result['hits']['total']
 
     if total > 0:
@@ -346,16 +333,29 @@ def get_acq_data_from_list(acq_list):
             if total ==0:
                 logger.info("Failed to get information about Acqusition(possibly missing??) : %s" %acq)
                 raise RuntimeError("Failed to get information about Acqusition(possibly missing??) : %s" %acq)
-        
-        acq_data = acq_data_value['fields']['partial'][0] 
-        status = check_slc_status(acq_data['metadata']['identifier']) 
-        if status: 
+
+        acq_data = acq_data_value['fields']['partial'][0]
+
+        # Change for OPDS sling pipeline: If acquisition not in ASF, do not consider for sling in acq_info
+        vertex_query = "https://api.daac.asf.alaska.edu/services/search/param?granule_list={}&processingLevel=SLC&output=json".format(acq_data['metadata']['identifier'])
+        r = requests.get(vertex_query, allow_redirects=True)
+        if not (r.status_code in (200, 206)):
+            continue
+        else:
+            json_data = json.loads(r.text)
+            if json_data[0]:
+                logger.info("SLC available on ASF: %s" % json_data[0][0]['fileName'])
+            else:
+                continue
+
+        status = check_slc_status(acq_data['metadata']['identifier'])
+        if status:
             # status=1 
             logger.info("%s exists" %acq_data['metadata']['identifier']) 
             acq_info[acq]=get_acq_object(acq, acq_data, 1) 
         else: 
             #status = 0 
-            logger.info("%s does NOT exist"%acq_data['metadata']['identifier']) 
+            logger.info("%s does NOT exist"%acq_data['metadata']['identifier'])
             acq_info[acq]=get_acq_object(acq, acq_data, 0)
     return acq_info
 
@@ -403,7 +403,7 @@ def resolve_source(ctx_file):
     acq_list = ctx['products'] if isinstance(ctx['products'], list) else [ctx['products']]
     logger.info("Acq List Type : %s" %type(acq_list))
 
-    spyddder_sling_extract_version = ctx.get('spyddder_sling_extract_version', 'develop')
+    spyddder_sling_extract_version = ctx.get('opds_sling_extract_version', 'develop')
 
     asf_ngap_download_queue = ctx['asf_ngap_download_queue']
     esa_download_queue = ctx['esa_download_queue']

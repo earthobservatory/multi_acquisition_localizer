@@ -257,7 +257,6 @@ def check_ES_status(doc_id):
     return True
 
 def check_slc_status(slc_id, index_suffix):
-
     result = localizer_util.get_dataset(slc_id, index_suffix)
     total = result['hits']['total']
     if total == 0:
@@ -270,7 +269,7 @@ def check_slc_status(slc_id, index_suffix):
     return False
 
 def check_slc_status(slc_id):
-
+    #  Changes for OPDS sling pipeline: add -pds suffix to check
     result = localizer_util.get_dataset(slc_id)
     total = result['hits']['total']
     if total == 0:
@@ -377,14 +376,16 @@ def get_acq_data_from_query(query):
         acq_data = hits["hits"][i]["_source"]
         #logger.info("\n%s" %acq_data)
         acq = hits["hits"][i]["_id"]
-        status = check_slc_status(acq_data['metadata']['identifier'])
+        #  Changes for OPDS sling pipeline: add -pds suffix to check
+        slc_pds_id = acq_data['metadata']['identifier']+"-pds"
+        status = check_slc_status(slc_pds_id)
         if status:
             # status=1
-            logger.info("%s exists" %acq_data['metadata']['identifier'])
+            logger.info("%s exists" % slc_pds_id)
             acq_info[acq]=get_acq_object(acq, acq_data, 1)
         else:
             #status = 0
-            logger.info("%s does NOT exist"%acq_data['metadata']['identifier'])
+            logger.info("%s does NOT exist"% slc_pds_id)
             acq_info[acq]=get_acq_object(acq, acq_data, 0)
     
     return acq_info 

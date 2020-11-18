@@ -347,8 +347,7 @@ def get_acq_data_from_list(acq_list):
                 continue
         #  Changes for OPDS sling pipeline: add -pds suffix to check
         slc_pds_id = acq_data['metadata']['identifier']+"-pds"
-        index_suffix = 'grq_v2.0_acquisition-s1-iw_slc'
-        status = check_slc_status(slc_pds_id, index_suffix)
+        status = check_slc_status(slc_pds_id)
         if status:
             # status=1 
             logger.info("%s exists" % slc_pds_id)
